@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <style>
+    /* General Styles */
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    .otp-verification-container {
+      background-color: #2a2a2a;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      border: 2px solid #00ffff;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      0% {
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      }
+      100% {
+        box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+      }
+    }
+
+    .otp-card h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #00ffff;
+    }
+
+    .otp-card p {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    .email-input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      background-color: #1a1a1a;
+      color: #00ffff;
+      outline: none;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .otp-inputs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .otp-input {
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      font-size: 18px;
+      border: 2px solid #00ffff;
+      border-radius: 8px;
+      outline: none;
+      background-color: #1a1a1a;
+      color: #00ffff;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .otp-input:focus {
+      border-color: #00ffcc;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.8);
+    }
+
+    .verify-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #00ffff;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .verify-btn:hover {
+      background-color: #00ffcc;
+      box-shadow: 0 0 15px rgba(0, 255, 204, 0.8);
+    }
+
+    .resend-otp {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .resend-otp a {
+      color: #00ffff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .resend-otp a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="otp-verification-container">
+    <div class="otp-card">
+      <h1>OTP Verification</h1>
+      <p>We have sent a 4-digit OTP to your email. Please enter it below to verify.</p>
+      
+      <input type="email" id="email" class="email-input" placeholder="Enter your email" required>
+      
+      <div class="otp-inputs">
+        <input type="text" maxlength="1" class="otp-input" />
+        <input type="text" maxlength="1" class="otp-input" />
+        <input type="text" maxlength="1" class="otp-input" />
+        <input type="text" maxlength="1" class="otp-input" />
+      </div>
+
+      <button class="verify-btn" onclick="verifyOtp()">Verify OTP</button>
+
+      <p class="resend-otp">Didn't receive the OTP? <a href="#" onclick="resendOtp()">Resend OTP</a></p>
+    </div>
+  </div>
+
+  <script>
+    async function verifyOtp() {
+      const email = document.getElementById('email').value.trim();
+      const otpInputs = document.querySelectorAll('.otp-input');
+      let otp = '';
+      otpInputs.forEach(input => {
+        otp += input.value;
+      });
+
+      if (!email) {
+        alert('Please enter your email.');
+        return;
+      }
+
+      if (otp.length === 4) {
+        const response = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, otp })
+        });
+        const data = await response.json();
+        if (data.success) {
+          alert('OTP Verified! Redirecting you to exam...');
+          window.location.href = '/examset';
+        } else {
+          alert(data.message);
+        }
+      } else {
+        alert('Please enter a valid 4-digit OTP.');
+      }
+    }
+
+    async function resendOtp() {
+      const email = document.getElementById('email').value.trim();
+      if (!email) {
+        alert('Please enter your email to resend OTP.');
+        return;
+      }
+      alert('Resend OTP functionality is not implemented in this example.');
+    }
+
+    const otpInputs = document.querySelectorAll('.otp-input');
+    otpInputs.forEach((input, index) => {
+      input.addEventListener('input', () => {
+        if (input.value.length === 1 && index < otpInputs.length - 1) {
+          otpInputs[index + 1].focus();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
